@@ -3,6 +3,11 @@ import Router from 'vue-router'
 // import Home from './views/Home.vue'
 import AddDataSource from './views/AddDataSource.vue'
 import ManageDataSources from './views/ManageDataSources.vue'
+import GraphSearch from './views/GraphSearch.vue'
+import KeywordSearch from './views/KeywordSearch.vue'
+import AddFile from './views/AddFile.vue'
+import ManageFiles from './views/ManageFiles.vue'
+import ImageSearch from './views/ImageSearch.vue'
 
 Vue.use(Router)
 
@@ -19,6 +24,31 @@ export default new Router({
       path: '/manage-data-sources',
       name: 'manage-data-sources',
       component: ManageDataSources
+    },
+    {
+      path: '/graph-search',
+      name: 'graph-search',
+      component: GraphSearch
+    },
+    {
+      path: '/keyword-search',
+      name: 'keyword-search',
+      component: KeywordSearch
+    },
+    {
+      path: '/image-search',
+      name: 'image-search',
+      component: ImageSearch
+    },
+    {
+      path: '/add-file',
+      name: 'keyword-search',
+      component: AddFile
+    },
+    {
+      path: '/manage-files',
+      name: 'keyword-search',
+      component: ManageFiles
     },
     {
       path: '/tables',

@@ -5,6 +5,7 @@ import '@mdi/font/css/materialdesignicons.css'
 /* Core */
 import Vue from 'vue'
 import Buefy from 'buefy'
+import 'vue2vis/dist/vue2vis.css'
 
 /* Router & Store */
 import router from './router'

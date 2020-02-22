@@ -27,7 +27,7 @@ export default {
         [
           {
             label: 'Data Sources',
-            subLabel: 'Submenus Example',
+            subLabel: 'Data Sources',
             icon: 'view-list',
             menu: [
               {
@@ -41,6 +41,41 @@ export default {
                 to: '/manage-data-sources'
               }
             ]
+          },
+          {
+            label: 'Files',
+            subLabel: 'Files',
+            icon: 'file',
+            menu: [
+              {
+                href: '#void',
+                label: 'Add File',
+                to: '/add-file'
+              },
+              {
+                href: '#void',
+                label: 'Manage Files',
+                to: '/manage-files'
+              }
+            ]
+          }
+        ],
+        'Search',
+        [
+          {
+            to: '/keyword-search',
+            icon: 'text',
+            label: 'Keyword Search'
+          },
+          {
+            to: '/graph-search',
+            icon: 'graphql',
+            label: 'Graph Search'
+          },
+          {
+            to: '/image-search',
+            icon: 'image',
+            label: 'Image Search'
           }
         ]
         // 'General',

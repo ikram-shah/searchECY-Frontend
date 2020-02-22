@@ -4,7 +4,7 @@
       class="aside is-placed-left is-expanded">
     <aside-tools :is-main-menu="true">
       <span slot="label">
-        <b>search</b>ECY
+        <b>search</b> ECY
       </span>
     </aside-tools>
     <div class="menu is-menu-main">
