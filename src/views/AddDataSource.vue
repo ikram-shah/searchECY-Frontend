@@ -109,7 +109,7 @@ export default {
     },
     submit () {
       let here = this
-      axios.post('http://localhost/add_connection', {
+      axios.post('https://www.infineon-hack-doc-search.ml/add_connection', {
         'access_key_id': this.s3Form.s3AccessID,
         'access_key': this.s3Form.s3SecretKey,
         'bucket': this.s3Form.s3BucketName,

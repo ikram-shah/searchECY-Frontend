@@ -1,7 +1,6 @@
 <template>
   <div>
     <section class="section is-main-section">
-
       <card-component class="has-table has-mobile-sort-spaced" title="Manage Data Sources" icon="alpha-c-circle">
         <data-sources-table :checkable="true"/>
       </card-component>

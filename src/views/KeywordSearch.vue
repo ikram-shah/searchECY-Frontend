@@ -42,10 +42,12 @@
                         <b-tag type="is-dark">version</b-tag>
                     </b-taglist>
                 </div>
+                </b-field>
+                <b-field>
                     <div class="control">
-                <b-taglist>
-                    <b-tag v-for="index in 6" :key="index" type="is-primary">Tag {{index}}</b-tag>
-                </b-taglist>
+                        <b-taglist>
+                            <b-tag v-for="index in 6" :key="index" type="is-primary">Tag {{index}}</b-tag>
+                        </b-taglist>
                     </div>
                 </b-field>
         </card-component>

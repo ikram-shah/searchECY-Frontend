@@ -1,3 +1,3 @@
 <template>
-    <p>AddFile</p>
+    <p>AddFile[FEATURE NOT ADDED YET]</p>
 </template>

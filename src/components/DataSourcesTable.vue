@@ -2,6 +2,7 @@
   <div>
     <modal-box :is-active="isModalActive" :trash-object-name="trashObjectName" @confirm="trashConfirm"
                @cancel="trashCancel"/>
+    <div v-for="(client, index) in clients" :key="index">
     <b-table
       :checked-rows.sync="checkedRows"
       :loading="isLoading"
@@ -10,12 +11,12 @@
       :striped="true"
       :hoverable="true"
       default-sort="name"
-      :data="clients">
+      :data="client">
 
       <template slot-scope="props">
-        <b-table-column  label="ID" field="id" sortable>
+        <!-- <b-table-column  label="ID" field="id" sortable>
           {{ props.row.id }}
-        </b-table-column>
+        </b-table-column> -->
          <b-table-column  label="Name" field="name" sortable>
           {{ props.row.name }}
         </b-table-column>
@@ -43,7 +44,7 @@
             <!-- <router-link :to="{name:'client.edit', params: {id: props.row.id}}" class="button is-small is-primary">
               <b-icon icon="account-edit" size="is-small"/>
             </router-link> -->
-            <button class="button is-small is-danger" type="button" @click.prevent="trashModal(props.row)">
+            <button disabled class="button is-small is-danger" type="button" @click.prevent="trashModal(props.row)">
               <b-icon icon="trash-can" size="is-small"/>
             </button>
           </div>
@@ -67,6 +68,7 @@
         </div>
       </section>
     </b-table>
+    </div>
   </div>
 </template>
 
@@ -91,32 +93,7 @@ export default {
     return {
       isModalActive: false,
       trashObject: null,
-      clients: [
-        {
-          'access_key': "'NdCe1b+2/yvYC5cOI0eyKzpqq9EAF7Q8kC0+sCJa'",
-          'acess_key_id': "'AKIA4UOIW7WWLSAZCZ23'",
-          'bucket': "'infineon-doc-search'",
-          'id': 1,
-          'name': "'Ikram s3'",
-          'region': "'ap-south-1'"
-        },
-        {
-          'access_key': "'NdCe1b+2/yvYC5cOI0eyKzpqq9EAF7Q8kC0+sCJa'",
-          'acess_key_id': "'AKIA4UOIW7WWLSAZCZ23'",
-          'bucket': "'infineon-doc-search'",
-          'id': 2,
-          'name': "'Ikram s3'",
-          'region': "'ap-south-1'"
-        },
-        {
-          'access_key': "'NdCe1b+2/yvYC5cOI0eyKzpqq9EAF7Q8kC0+sCJa'",
-          'acess_key_id': "'AKIA4UOIW7WWLSAZCZ23'",
-          'bucket': "'infineon-doc-search'",
-          'id': 3,
-          'name': "'Ikram s3'",
-          'region': "'ap-south-1'"
-        }
-      ],
+      clients: [],
       isLoading: false,
       paginated: false,
       perPage: 10,
@@ -133,29 +110,31 @@ export default {
     }
   },
   mounted () {
-    if (this.dataUrl) {
-      this.isLoading = true
+    this.getDataSources()
+  },
+  methods: {
+    getDataSources () {
       axios
-        .get(this.dataUrl)
+        .get('https://www.infineon-hack-doc-search.ml/view_connection')
         .then(r => {
-          this.isLoading = false
-          if (r.data && r.data.data) {
-            if (r.data.data.length > this.perPage) {
-              this.paginated = true
-            }
-            this.clients = r.data.data
-          }
+          this.clients.push(r.data.res)
+          // this.isLoading = false
+          // if (r.data && r.data.data) {
+          //   if (r.data.data.length > this.perPage) {
+          //     this.paginated = true
+          //   }
+          //   this.clients = r.data.data
+          // }
+          console.log(r)
         })
         .catch(e => {
-          this.isLoading = false
+          // this.isLoading = false
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'
           })
         })
-    }
-  },
-  methods: {
+    },
     trashModal (trashObject) {
       this.trashObject = trashObject
       this.isModalActive = true

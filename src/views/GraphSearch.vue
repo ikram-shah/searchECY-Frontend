@@ -78,6 +78,7 @@
 
 <script>
 import { Network } from 'vue2vis'
+import axios from 'axios'
 export default {
   data: () => ({
     documentSearch: '',
@@ -85,18 +86,32 @@ export default {
     networkEvents: '',
     network: {
       nodes: [
-        { id: 1, label: 'Document 1' },
-        { id: 2, label: 'Document 2' },
-        { id: 3, label: 'Document 3' },
-        { id: 4, label: 'Document 4' },
-        { id: 5, label: 'Document 5' }
+        {
+          'id': 1,
+          'label': 'ChinaWorries.pdf'
+        },
+        {
+          'id': 2,
+          'label': "Trump's high approval rating .docx"
+        },
+        {
+          'id': 3,
+          'label': 'US India Trade Deal.txt'
+        }
       ],
       edges: [
-        { id: 1, from: 1, to: 3, label: 'Tag 1', length: 70 },
-        { id: 2, from: 1, to: 2, label: 'Tag 2' },
-        { id: 3, from: 2, to: 4 },
-        { id: 4, from: 2, to: 5 },
-        { id: 5, from: 3, to: 4 }
+        {
+          'from': 1,
+          'id': 1,
+          'label': 'business',
+          'to': 3
+        },
+        {
+          'from': 1,
+          'id': 2,
+          'label': 'Trump',
+          'to': 2
+        }
       ],
       options: {
         nodes: {
@@ -119,7 +134,25 @@ export default {
   components: {
     Network
   },
+  mounted () {
+    this.getGraphData()
+  },
   methods: {
+    getGraphData () {
+      axios
+        .post('https://www.infineon-hack-doc-search.ml/get_graph')
+        .then(r => {
+          // this.isLoading = false
+          console.log(this.network)
+        })
+        .catch(e => {
+          // this.isLoading = false
+          this.$buefy.toast.open({
+            message: `Error: ${e.message}`,
+            type: 'is-danger'
+          })
+        })
+    },
     selectNodes () {
       // this.$refs.network.selectNodes([1])
     },
@@ -142,26 +175,26 @@ export default {
         to: this.network.nodes[n2].id
       })
     },
-    resetNetwork () {
-      this.network = {
-        nodes: [
-          { id: 1, label: 'Document 1' },
-          { id: 2, label: 'Document 2' },
-          { id: 3, label: 'Document 3' },
-          { id: 4, label: 'Document 4' },
-          { id: 5, label: 'Document 5' }
-        ],
-        edges: [
-          { id: 1, from: 1, to: 3, through: 'Ikram', label: 'Tag 1' },
-          { id: 6, from: 1, to: 3, through: 'Ikram', label: 'Tag 2' },
-          { id: 2, from: 1, to: 2, through: 'Ikram' },
-          { id: 3, from: 2, to: 4 },
-          { id: 4, from: 2, to: 5 },
-          { id: 5, from: 3, to: 3 }
-        ],
-        options: {}
-      }
-    },
+    // resetNetwork () {
+    //   this.network = {
+    //     nodes: [
+    //       { id: 1, label: 'Document 1' },
+    //       { id: 2, label: 'Document 2' },
+    //       { id: 3, label: 'Document 3' },
+    //       { id: 4, label: 'Document 4' },
+    //       { id: 5, label: 'Document 5' }
+    //     ],
+    //     edges: [
+    //       { id: 1, from: 1, to: 3, through: 'Ikram', label: 'Tag 1' },
+    //       { id: 6, from: 1, to: 3, through: 'Ikram', label: 'Tag 2' },
+    //       { id: 2, from: 1, to: 2, through: 'Ikram' },
+    //       { id: 3, from: 2, to: 4 },
+    //       { id: 4, from: 2, to: 5 },
+    //       { id: 5, from: 3, to: 3 }
+    //     ],
+    //     options: {}
+    //   }
+    // },
     removeNode () {
       this.network.nodes.splice(0, 1)
     },
