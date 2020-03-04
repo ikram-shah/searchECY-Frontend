@@ -140,7 +140,7 @@ export default {
   methods: {
     getGraphData () {
       axios
-        .post('https://www.infineon-hack-doc-search.ml/get_graph')
+        .post('https://www.infineon-hack-doc-search.ml/get_graph', { 'conn_name': 'Ikram s3' })
         .then(r => {
           // this.isLoading = false
           console.log(this.network)

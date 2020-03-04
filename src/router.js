@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import Home from './views/Home.vue'
+import Home from './views/Home.vue'
 import AddDataSource from './views/AddDataSource.vue'
 import ManageDataSources from './views/ManageDataSources.vue'
 import GraphSearch from './views/GraphSearch.vue'
@@ -15,6 +15,11 @@ export default new Router({
   base: process.env.BASE_URL,
   mode: 'history',
   routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+    },
     {
       path: '/add-data-source',
       name: 'add-data-sources',

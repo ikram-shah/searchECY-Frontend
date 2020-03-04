@@ -23,6 +23,13 @@ export default {
   computed: {
     menu () {
       return [
+        [
+          {
+            to: '/',
+            icon: 'home',
+            label: 'Home'
+          }
+        ],
         'General',
         [
           {
@@ -43,21 +50,9 @@ export default {
             ]
           },
           {
-            label: 'Files',
-            subLabel: 'Files',
+            to: '/manage-files',
             icon: 'file',
-            menu: [
-              {
-                href: '#void',
-                label: 'Add File',
-                to: '/add-file'
-              },
-              {
-                href: '#void',
-                label: 'Manage Files',
-                to: '/manage-files'
-              }
-            ]
+            label: 'Manage Files'
           }
         ],
         'Search',
@@ -71,12 +66,12 @@ export default {
             to: '/graph-search',
             icon: 'graphql',
             label: 'Graph Search'
-          },
-          {
-            to: '/image-search',
-            icon: 'image',
-            label: 'Image Search'
           }
+          // {
+          //   to: '/image-search',
+          //   icon: 'image',
+          //   label: 'Image Search'
+          // }
         ]
         // 'General',
         // [
