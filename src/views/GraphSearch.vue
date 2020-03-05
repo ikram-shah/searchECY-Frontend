@@ -1,17 +1,30 @@
 <template>
   <div class="wrapper">
+    <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
       <div class="columns" horizontal>
-       <b-field class="column" >
-            <b-input placeholder="Search Documents"
-                type="search"
-                v-model="documentSearch"
-                icon="magnify">
-            </b-input>
-            <!-- <p class="control">
-                <button class="button is-primary">Search</button>
-            </p> -->
+        <b-field class="column is-one-third">
+        <b-select placeholder="Select Data Source*" v-model="selectedDataSource" expanded>
+            <option v-for="(dataSource, index) in dataSourcesOption" :key="index" :value="dataSource">{{dataSource}}</option>
+        </b-select>
+       </b-field>
+        <b-field class="column is-one-third">
+            <b-select placeholder="Select Type" v-model="searchType" expanded>
+                <option value="document">Document</option>
+                <option value="tag">Tag</option>
+            </b-select>
         </b-field>
-        <b-field class="column">
+        <b-field v-if="searchType=='document'" class="column">
+            <b-autocomplete
+                v-model="documentSearchText"
+                placeholder="e.g. Anne"
+                :keep-first="keepFirst"
+                :open-on-focus="openOnFocus"
+                @typing="documentSearchOptions"
+                :data="filteredDocumentsName"
+                @select="option => selectedDocumentName = option">
+            </b-autocomplete>
+        </b-field>
+        <b-field v-if="searchType=='tag'" class="column">
             <b-input placeholder="Search Tags"
                 type="search"
                 v-model="tagSearch"
@@ -81,37 +94,47 @@ import { Network } from 'vue2vis'
 import axios from 'axios'
 export default {
   data: () => ({
-    documentSearch: '',
+    filteredDocumentsName: null,
+    keepFirst: false,
+    openOnFocus: false,
+    documentSearch: [],
+    documentSearchText: '',
+    dataSourcesOption: [],
+    selectedDataSource: null,
+    selectedDocumentName: null,
     tagSearch: '',
+    isLoading: false,
     networkEvents: '',
+    searchType: null,
+    files: [],
     network: {
       nodes: [
-        {
-          'id': 1,
-          'label': 'ChinaWorries.pdf'
-        },
-        {
-          'id': 2,
-          'label': "Trump's high approval rating .docx"
-        },
-        {
-          'id': 3,
-          'label': 'US India Trade Deal.txt'
-        }
+        // {
+        //   'id': 1,
+        //   'label': 'ChinaWorries.pdf'
+        // },
+        // {
+        //   'id': 2,
+        //   'label': "Trump's high approval rating .docx"
+        // },
+        // {
+        //   'id': 3,
+        //   'label': 'US India Trade Deal.txt'
+        // }
       ],
       edges: [
-        {
-          'from': 1,
-          'id': 1,
-          'label': 'business',
-          'to': 3
-        },
-        {
-          'from': 1,
-          'id': 2,
-          'label': 'Trump',
-          'to': 2
-        }
+        // {
+        //   'from': 1,
+        //   'id': 1,
+        //   'label': 'business',
+        //   'to': 3
+        // },
+        // {
+        //   'from': 1,
+        //   'id': 2,
+        //   'label': 'Trump',
+        //   'to': 2
+        // }
       ],
       options: {
         nodes: {
@@ -124,43 +147,102 @@ export default {
     }
   }),
   watch: {
-    documentSearch (val) {
-      console.log(val)
+    selectedDocumentName (val) {
+      this.selectNodes(val)
     },
     tagSearch (val) {
       console.log(val)
+    },
+    selectedDataSource (val) {
+      this.getGraphData()
+      this.getFiles(val)
     }
   },
   components: {
     Network
   },
   mounted () {
-    this.getGraphData()
+    this.getSourceNames()
   },
   methods: {
-    getGraphData () {
+    openLoading () {
+      this.isLoading = true
+    },
+    closeLoading () {
+      this.isLoading = false
+    },
+    documentSearchOptions (val) {
+      console.log(val, this.files)
+      let fileNames = this.files[0].map(function (v) { return v.toLowerCase() })
+      this.filteredDocumentsName = (fileNames.filter(item => item.toString().includes(val.toLowerCase())))
+      // this.filteredDocumentsName.push(percents)
+      console.log(this.filteredDocumentsName)
+    },
+    getFiles (dataSourceName) {
+      this.files = []
+      this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/get_graph', { 'conn_name': 'Ikram s3' })
+        .post('https://www.infineon-hack-doc-search.ml/view_files', { 'name': dataSourceName })
         .then(r => {
-          // this.isLoading = false
-          console.log(this.network)
+          this.closeLoading()
+          this.files.push(r.data.res)
+          this.filteredDocumentsName = this.files[0]
         })
         .catch(e => {
-          // this.isLoading = false
+          this.closeLoading()
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'
           })
         })
     },
-    selectNodes () {
-      // this.$refs.network.selectNodes([1])
+    getSourceNames () {
+      this.openLoading()
+      axios
+        .get('https://www.infineon-hack-doc-search.ml/view_connection')
+        .then(r => {
+          this.closeLoading()
+          r.data.res.forEach(element => {
+            this.dataSourcesOption.push(element.name)
+          })
+        })
+        .catch(e => {
+          this.closeLoading()
+          this.$buefy.toast.open({
+            message: `Error: ${e.message}`,
+            type: 'is-danger'
+          })
+        })
+    },
+    getGraphData () {
+      this.openLoading()
+      axios
+        .post('https://www.infineon-hack-doc-search.ml/get_graph', { 'conn_name': this.selectedDataSource.toLowerCase().replace(/\s/g, '') })
+        .then(r => {
+          this.closeLoading()
+          this.network.nodes = r.data.nodes
+          this.network.edges = r.data.edges
+        })
+        .catch(e => {
+          this.closeLoading()
+          this.$buefy.toast.open({
+            message: `Error: ${e.message}`,
+            type: 'is-danger'
+          })
+        })
+    },
+    selectNodes (val) {
+      let selectedNode = this.network.nodes.filter(item => item.label.toLowerCase() === val)
+      console.log(selectedNode)
+      this.$refs.network.redraw()
+      this.$refs.network.focus([selectedNode[0].id], this.network.options)
+      this.$refs.network.selectNodes([selectedNode[0].id], this.network.options)
     },
     networkEvent (eventName) {
       if (this.networkEvents.length > 500) this.networkEvents = ''
       this.networkEvents += `${eventName}, `
-      console.log(this.$refs.network.getSelection())
-      this.selectNodes()
+      // console.log(this.$refs.network.getSelection())
+      // this.selectNodes()
     },
     addNode () {
       const id = new Date().getTime()
@@ -219,7 +301,8 @@ export default {
 }
 .network {
   height: 500px;
-  /* border: 1px solid #ccc; */
+  border: 1px dotted #ccc;
+  background-color: aliceblue
   /* margin: 5px 0; */
 }
 </style>

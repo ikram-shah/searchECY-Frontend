@@ -16,7 +16,7 @@
         ></b-input>
       </b-field>
       <b-field v-if="selectedDataSource" class="column">
-        <b-input placeholder="Search Tags" type="search" v-model="tagSearch" icon="magnify"></b-input>
+        <b-input placeholder="Search Tags (.,.)" type="search" v-model="tagSearch" icon="magnify"></b-input>
       </b-field>
     </div>
     <div v-for="(item,index) in searchResult" :key="index" class="control card">
@@ -31,11 +31,11 @@
             </div>
             </b-field>
             <br>
-            <p><strong>SUMMARY</strong> ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p><strong>SUMMARY</strong> {{item._source.summary}}</p>
             <!-- <p class="subtitle">Jeff Atwood</p> -->
             </div>
             <hr>
-            <b-field v-if="item._source.tags" class="control">
+            <b-field label="Manual Tags" v-if="item._source.tags" class="control">
                 <b-taglist>
                     <b-tag @close="deleteManualTag(tag,item._id, item._index)" type="is-warning" closable rounded v-for="(tag, index) in formatTags(item._source.tags)" :key="index">{{tag}}</b-tag>
                 </b-taglist>
@@ -57,7 +57,7 @@
                     </b-taglist>
                 </div>
                 </b-field> -->
-                <b-field v-if="item._source.automated_tags">
+                <b-field label="Automated Tags" v-if="item._source.automated_tags">
                     <div class="control">
                         <b-taglist>
                             <b-tag @close="deleteAutomatedTag(automated_tag,item._id, item._index)" closable v-for="(automated_tag, index) in formatTags(item._source.automated_tags)" :key="index" type="is-primary">{{automated_tag}}</b-tag>
@@ -101,9 +101,6 @@ export default {
   methods: {
     openLoading () {
       this.isLoading = true
-    //   setTimeout(() => {
-    //     this.isLoading = false
-    //   }, 10 * 1000)
     },
     closeLoading () {
       this.isLoading = false

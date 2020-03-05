@@ -5,6 +5,7 @@
             <option v-for="(dataSource, index) in dataSourcesOption" :key="index" :value="dataSource">{{dataSource}}</option>
         </b-select>
     </b-field>
+    <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
     <card-component v-if="selectedDataSource" class="has-table has-mobile-sort-spaced" title="" icon="alpha-c-circle">
     <modal-box :is-active="isModalActive" :trash-object-name="trashObjectName" @confirm="trashConfirm"
                @cancel="trashCancel"/>
@@ -109,14 +110,22 @@ export default {
     }
   },
   methods: {
+    openLoading () {
+      this.isLoading = true
+    },
+    closeLoading () {
+      this.isLoading = false
+    },
     openAFile (fileName, selectedDataSource) {
+      this.openLoading()
       axios
         .post('https://www.infineon-hack-doc-search.ml/view_file', { 'name': selectedDataSource, 'file_name': fileName })
         .then(r => {
+          this.closeLoading()
           window.open(r.data.res, '_blank')
         })
         .catch(e => {
-          // this.isLoading = false
+          this.closeLoading()
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'
@@ -124,25 +133,18 @@ export default {
         })
     },
     getSourceNames () {
+      this.dataSourcesOption = []
+      this.openLoading()
       axios
         .get('https://www.infineon-hack-doc-search.ml/view_connection')
         .then(r => {
-        //   this.files.push(r.data.res)
+          this.closeLoading()
           r.data.res.forEach(element => {
             this.dataSourcesOption.push(element.name)
           })
-          console.log(this.dataSourcesOption)
-          // this.isLoading = false
-          // if (r.data && r.data.data) {
-          //   if (r.data.data.length > this.perPage) {
-          //     this.paginated = true
-          //   }
-          //   this.files = r.data.data
-          // }
-          console.log(r)
         })
         .catch(e => {
-          // this.isLoading = false
+          this.closeLoading()
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'
@@ -150,21 +152,16 @@ export default {
         })
     },
     getFiles (dataSourceName) {
+      this.files = []
+      this.openLoading()
       axios
         .post('https://www.infineon-hack-doc-search.ml/view_files', { 'name': dataSourceName })
         .then(r => {
+          this.closeLoading()
           this.files.push(r.data.res)
-          // this.isLoading = false
-          // if (r.data && r.data.data) {
-          //   if (r.data.data.length > this.perPage) {
-          //     this.paginated = true
-          //   }
-          //   this.files = r.data.data
-          // }
-          console.log(r)
         })
         .catch(e => {
-          // this.isLoading = false
+          this.closeLoading()
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
     <modal-box :is-active="isModalActive" :trash-object-name="trashObjectName" @confirm="trashConfirm"
                @cancel="trashCancel"/>
     <div v-for="(client, index) in clients" :key="index">
@@ -113,22 +114,23 @@ export default {
     this.getDataSources()
   },
   methods: {
+    openLoading () {
+      this.isLoading = true
+    },
+    closeLoading () {
+      this.isLoading = false
+    },
     getDataSources () {
+      this.clients = []
+      this.openLoading()
       axios
         .get('https://www.infineon-hack-doc-search.ml/view_connection')
         .then(r => {
+          this.closeLoading()
           this.clients.push(r.data.res)
-          // this.isLoading = false
-          // if (r.data && r.data.data) {
-          //   if (r.data.data.length > this.perPage) {
-          //     this.paginated = true
-          //   }
-          //   this.clients = r.data.data
-          // }
-          console.log(r)
         })
         .catch(e => {
-          // this.isLoading = false
+          this.closeLoading()
           this.$buefy.toast.open({
             message: `Error: ${e.message}`,
             type: 'is-danger'
