@@ -15,9 +15,9 @@
       :data="client">
 
       <template slot-scope="props">
-        <!-- <b-table-column  label="ID" field="id" sortable>
-          {{ props.row.id }}
-        </b-table-column> -->
+        <b-table-column  label="S. No" field="id" sortable>
+          {{ props.index+1 }}
+        </b-table-column>
          <b-table-column  label="Name" field="name" sortable>
           {{ props.row.name }}
         </b-table-column>

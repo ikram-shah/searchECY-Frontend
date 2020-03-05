@@ -1,5 +1,5 @@
 <template>
-  <div class="section is-main-section">
+  <div class="section" horizontal>
     <b-field class="column is-one-third"  label="Data Source">
         <b-select v-model="selectedDataSource" expanded>
             <option v-for="(dataSource, index) in dataSourcesOption" :key="index" :value="dataSource">{{dataSource}}</option>

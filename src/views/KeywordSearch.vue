@@ -1,13 +1,13 @@
 <template>
-  <div class="wrapper" horizontal>
+  <div class="section" horizontal>
     <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
     <div class="columns" horizontal>
-    <b-field class="column is-one-third">
+    <b-field label="Data Source" class="column is-one-third">
         <b-select placeholder="Select a Data Source*" v-model="selectedDataSource" expanded>
             <option v-for="(dataSource, index) in dataSourcesOption" :key="index" :value="dataSource">{{dataSource}}</option>
         </b-select>
     </b-field>
-      <b-field v-if="selectedDataSource" class="column">
+      <b-field label="Search Query" v-if="selectedDataSource" class="column">
         <b-input
           placeholder="Search Query"
           type="search"
@@ -15,7 +15,7 @@
           icon="magnify"
         ></b-input>
       </b-field>
-      <b-field v-if="selectedDataSource" class="column">
+      <b-field label="Search Tags" v-if="selectedDataSource" class="column">
         <b-input placeholder="Search Tags (.,.)" type="search" v-model="tagSearch" icon="magnify"></b-input>
       </b-field>
     </div>
@@ -178,7 +178,7 @@ export default {
     openFile (fileName, selectedDataSource) {
       this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/view_file', { 'name': selectedDataSource, 'file_name': fileName })
+        .post('https://www.infineon-hack-doc-search.ml/view_file', { 'name': selectedDataSource.toLowerCase().replace(/\s/g, ''), 'file_name': fileName })
         .then(r => {
           this.closeLoading()
           window.open(r.data.res, '_blank')
@@ -198,7 +198,7 @@ export default {
     getTagAndTextSearch () {
       this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/search_content_and_tag', { 'connection': 'Ikram s3', 'tag': this.tagSearch, 'txt': this.textSearch })
+        .post('https://www.infineon-hack-doc-search.ml/search_content_and_tag', { 'connection': this.selectedDataSource.toLowerCase().replace(/\s/g, ''), 'tag': this.tagSearch, 'txt': this.textSearch })
         .then(r => {
           this.closeLoading()
           this.searchResult = r.data.res
@@ -214,7 +214,7 @@ export default {
     getTagSearch () {
       this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/search_tag', { 'connection': 'Ikram s3', 'tag': this.tagSearch })
+        .post('https://www.infineon-hack-doc-search.ml/search_tag', { 'connection': this.selectedDataSource.toLowerCase().replace(/\s/g, ''), 'tag': this.tagSearch })
         .then(r => {
           this.closeLoading()
           this.searchResult = r.data.res
@@ -230,7 +230,23 @@ export default {
     gettextSearch () {
       this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/search_full_text', { 'connection': 'Ikram s3', 'txt': this.textSearch })
+        .post('https://www.infineon-hack-doc-search.ml/search_full_text', { 'connection': this.selectedDataSource.toLowerCase().replace(/\s/g, ''), 'txt': this.textSearch })
+        .then(r => {
+          this.closeLoading()
+          this.searchResult = r.data.res
+        })
+        .catch(e => {
+          this.closeLoading()
+          this.$buefy.toast.open({
+            message: `Error: ${e.message}`,
+            type: 'is-danger'
+          })
+        })
+    },
+    getAllSearch () {
+      this.openLoading()
+      axios
+        .post('https://www.infineon-hack-doc-search.ml/search_zero', { 'connection': this.selectedDataSource.toLowerCase().replace(/\s/g, '') })
         .then(r => {
           this.closeLoading()
           this.searchResult = r.data.res
@@ -250,8 +266,10 @@ export default {
         this.getTagSearch()
       } else if (this.selectedDataSource !== null && this.textSearch !== '' && this.tagSearch !== '') {
         this.getTagAndTextSearch()
+      } else if (this.selectedDataSource !== null) {
+        this.getAllSearch()
       } else {
-        console.log('DO NOTHING')
+        console.log('DO NOTING')
       }
     },
     getSourceNames () {

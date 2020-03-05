@@ -1,5 +1,15 @@
 <template>
-   <div>
+   <div class="section columns">
+
+<iframe class="column is-half" style="padding:30px;border-radius:10px !important;margin-top:0px !important;margin-bottom:0px !important;max-height:100% !important" width="560" height="1000" src="https://www.youtube.com/embed/gsVPuHqrkww" frameborder="1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+     <div
+ class="canva-embed column is-half"
+ data-design-id="DAD1s3_fJ0I"
+ data-height-ratio="0.7500"
+ style="background:rgba(0,0,0,0.03);margin-top:0px !important;border-radius:8px;margin-bottom:0px !important;max-height:100% !important"
+></div>
+
      <!-- <section class="section is-main-section">
         <card-component class="tile is-child" icon="ballot">
            <h4> This application is built for Infenion AI Challenge ........ </h4>

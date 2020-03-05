@@ -47,12 +47,12 @@ export default new Router({
     },
     {
       path: '/add-file',
-      name: 'keyword-search',
+      name: 'add-file',
       component: AddFile
     },
     {
       path: '/manage-files',
-      name: 'keyword-search',
+      name: 'manage-files',
       component: ManageFiles
     },
     {

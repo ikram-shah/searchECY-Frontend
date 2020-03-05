@@ -26,8 +26,8 @@ export default {
         [
           {
             to: '/',
-            icon: 'home',
-            label: 'Home'
+            icon: 'help-circle',
+            label: 'About'
           }
         ],
         'General',

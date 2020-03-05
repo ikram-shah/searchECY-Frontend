@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.b826b4a4174df9f98348875040ef214c.js"
+  "/precache-manifest.40a095fa6711c797823d6033e77a145c.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "search-ecy"});
