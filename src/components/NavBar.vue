@@ -6,7 +6,7 @@
       </a>
       <div class="navbar-item no-left-space-touch">
         <div class="control">
-          <input class="input" placeholder="Search everywhere...">
+          <input class="input">
         </div>
       </div>
     </div>

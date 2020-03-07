@@ -7,16 +7,16 @@
             <option v-for="(dataSource, index) in dataSourcesOption" :key="index" :value="dataSource">{{dataSource}}</option>
         </b-select>
        </b-field>
-        <b-field class="column is-one-third">
-            <b-select placeholder="Select Type" v-model="searchType" expanded>
-                <option value="document">Document</option>
+        <b-field v-if="selectedDataSource" class="column is-one-third">
+            <b-select placeholder="Select Type*" v-model="searchType" expanded>
                 <option value="tag">Tag</option>
+                <option value="document">Document</option>
             </b-select>
         </b-field>
         <b-field v-if="searchType=='document'" class="column">
             <b-autocomplete
                 v-model="documentSearchText"
-                placeholder="e.g. Anne"
+                placeholder="e.g. Filename.pdf"
                 :keep-first="keepFirst"
                 :open-on-focus="openOnFocus"
                 @typing="documentSearchOptions"
@@ -25,14 +25,15 @@
             </b-autocomplete>
         </b-field>
         <b-field v-if="searchType=='tag'" class="column">
-            <b-input placeholder="Search Tags"
-                type="search"
-                v-model="tagSearch"
-                icon="magnify">
-            </b-input>
-            <!-- <p class="control">
-                <button class="button is-primary">Search</button>
-            </p> -->
+            <b-autocomplete
+                v-model="tagSearchText"
+                placeholder="e.g. Survey"
+                :keep-first="keepFirst"
+                :open-on-focus="openOnFocus"
+                @typing="tagSearchOptions"
+                :data="filteredTagName"
+                @select="option => selectedTagName = option">
+            </b-autocomplete>
         </b-field>
       </div>
     <network
@@ -94,10 +95,14 @@ import { Network } from 'vue2vis'
 import axios from 'axios'
 export default {
   data: () => ({
+    filteredTagName: null,
     filteredDocumentsName: null,
+    tagSearchText: '',
+    selectedTagName: null,
     keepFirst: false,
     openOnFocus: false,
     documentSearch: [],
+    allTags: [],
     documentSearchText: '',
     dataSourcesOption: [],
     selectedDataSource: null,
@@ -141,8 +146,20 @@ export default {
           shape: 'box'
         },
         edges: {
-          length: 100
+          length: 200
         }
+        // physics: {
+        //   forceAtlas2Based: {
+        //     gravitationalConstant: -26,
+        //     centralGravity: 0.005,
+        //     springLength: 230,
+        //     springConstant: 0.18
+        //   },
+        //   maxVelocity: 146,
+        //   solver: 'forceAtlas2Based',
+        //   timestep: 0.35,
+        //   stabilization: { iterations: 150 }
+        // }
       }
     }
   }),
@@ -150,12 +167,19 @@ export default {
     selectedDocumentName (val) {
       this.selectNodes(val)
     },
-    tagSearch (val) {
-      console.log(val)
+    selectedTagName (val) {
+      this.selectNodes(val)
     },
     selectedDataSource (val) {
-      this.getGraphData()
       this.getFiles(val)
+      this.getTagNames()
+    },
+    searchType (val) {
+      if (val === 'document') {
+        this.getGraphData('doc')
+      } else if (val === 'tag') {
+        this.getGraphData('tag')
+      }
     }
   },
   components: {
@@ -171,11 +195,16 @@ export default {
     closeLoading () {
       this.isLoading = false
     },
+    tagSearchOptions (val) {
+      console.log(val, this.allTags)
+      let tagNames = this.allTags.map(function (v) { return v.toLowerCase() })
+      this.filteredTagName = (tagNames.filter(item => item.toString().includes(val.toLowerCase())))
+      console.log(this.filteredTagName)
+    },
     documentSearchOptions (val) {
       console.log(val, this.files)
       let fileNames = this.files[0].map(function (v) { return v.toLowerCase() })
       this.filteredDocumentsName = (fileNames.filter(item => item.toString().includes(val.toLowerCase())))
-      // this.filteredDocumentsName.push(percents)
       console.log(this.filteredDocumentsName)
     },
     getFiles (dataSourceName) {
@@ -214,14 +243,35 @@ export default {
           })
         })
     },
-    getGraphData () {
+    getTagNames () {
       this.openLoading()
       axios
-        .post('https://www.infineon-hack-doc-search.ml/get_graph', { 'conn_name': this.selectedDataSource.toLowerCase().replace(/\s/g, '') })
+        .post('https://www.infineon-hack-doc-search.ml/fetch_tags', { 'name': this.selectedDataSource })
+        .then(r => {
+          this.closeLoading()
+          this.allTags = r.data.res
+          this.filteredTagName = r.data.res
+        })
+        .catch(e => {
+          this.closeLoading()
+          this.$buefy.toast.open({
+            message: `Error: ${e.message}`,
+            type: 'is-danger'
+          })
+        })
+    },
+    getGraphData (val) {
+      this.openLoading()
+      axios
+        .post('https://www.infineon-hack-doc-search.ml/get_graph', { 'conn_name': this.selectedDataSource.toLowerCase().replace(/\s/g, ''), 'type': val })
         .then(r => {
           this.closeLoading()
           this.network.nodes = r.data.nodes
           this.network.edges = r.data.edges
+          // this.network.edges.forEach(element => {
+          //   element.length = 200
+          // })
+          console.log(this.network.edges)
         })
         .catch(e => {
           this.closeLoading()
@@ -233,11 +283,85 @@ export default {
     },
     selectNodes (val) {
       let selectedNode = this.network.nodes.filter(item => item.label.toLowerCase() === val)
-      console.log(selectedNode)
+      // this.neighbourhoodHighlight(selectedNode)
       this.$refs.network.redraw()
       this.$refs.network.focus([selectedNode[0].id], this.network.options)
       this.$refs.network.selectNodes([selectedNode[0].id], this.network.options)
+      console.log(this.$refs.network.getConnectedEdges([selectedNode[0].id]))
     },
+    // neighbourhoodHighlight (params) {
+    //   console.log(params)
+    //   let highlightActive = false
+    //   // if something is selected:
+    //   if (params.nodes.length > 0) {
+    //     highlightActive = true
+    //     var i, j
+    //     var selectedNode = params.nodes[0]
+    //     var degrees = 2
+
+    //     // mark all nodes as hard to read.
+    //     for (var nodeId in this.network.nodes) {
+    //       this.network.nodes[nodeId].color = 'rgba(200,200,200,0.5)'
+    //       if (this.network.nodes[nodeId].hiddenLabel === undefined) {
+    //         this.network.nodes[nodeId].hiddenLabel = this.network.nodes[nodeId].label
+    //         this.network.nodes[nodeId].label = undefined
+    //       }
+    //     }
+    //     var connectedNodes = this.network.getConnectedNodes(selectedNode)
+    //     var allConnectedNodes = []
+
+    //     // get the second degree nodes
+    //     for (i = 1; i < degrees; i++) {
+    //       for (j = 0; j < connectedNodes.length; j++) {
+    //         allConnectedNodes = allConnectedNodes.concat(this.network.getConnectedNodes(connectedNodes[j]))
+    //       }
+    //     }
+
+    //     // all second degree nodes get a different color and their label back
+    //     for (i = 0; i < allConnectedNodes.length; i++) {
+    //       this.network.nodes[allConnectedNodes[i]].color = 'rgba(150,150,150,0.75)'
+    //       if (this.network.nodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+    //         this.network.nodes[allConnectedNodes[i]].label = this.network.nodes[allConnectedNodes[i]].hiddenLabel
+    //         this.network.nodes[allConnectedNodes[i]].hiddenLabel = undefined
+    //       }
+    //     }
+
+    //     // all first degree nodes get their own color and their label back
+    //     for (i = 0; i < connectedNodes.length; i++) {
+    //       this.network.nodes[connectedNodes[i]].color = undefined
+    //       if (this.network.nodes[connectedNodes[i]].hiddenLabel !== undefined) {
+    //         this.network.nodes[connectedNodes[i]].label = this.network.nodes[connectedNodes[i]].hiddenLabel
+    //         this.network.nodes[connectedNodes[i]].hiddenLabel = undefined
+    //       }
+    //     }
+
+    //     // the main node gets its own color and its label back.
+    //     this.network.nodes[selectedNode].color = undefined
+    //     if (this.network.nodes[selectedNode].hiddenLabel !== undefined) {
+    //       this.network.nodes[selectedNode].label = this.network.nodes[selectedNode].hiddenLabel
+    //       this.network.nodes[selectedNode].hiddenLabel = undefined
+    //     }
+    //   } else if (highlightActive === true) {
+    //   // reset all nodes
+    //     for (nodeId in this.network.nodes) {
+    //       this.network.nodes[nodeId].color = undefined
+    //       if (this.network.nodes[nodeId].hiddenLabel !== undefined) {
+    //         this.network.nodes[nodeId].label = this.network.nodes[nodeId].hiddenLabel
+    //         this.network.nodes[nodeId].hiddenLabel = undefined
+    //       }
+    //     }
+    //     highlightActive = false
+    //   }
+
+    //   // transform the object into an array
+    //   var updateArray = []
+    //   for (nodeId in this.network.nodes) {
+    //     if (this.network.nodes.hasOwnProperty(nodeId)) {
+    //       updateArray.push(this.network.nodes[nodeId])
+    //     }
+    //   }
+    //   this.network.nodes.update(updateArray)
+    // },
     networkEvent (eventName) {
       if (this.networkEvents.length > 500) this.networkEvents = ''
       this.networkEvents += `${eventName}, `
