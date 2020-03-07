@@ -1,8 +1,10 @@
 <template>
    <div class="section columns">
-
-<iframe class="column is-half" style="padding:30px;border-radius:10px !important;margin-top:0px !important;margin-bottom:0px !important;max-height:100% !important" width="560" height="1000" src="https://www.youtube.com/embed/gsVPuHqrkww" frameborder="1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
+   <div  class="column">
+<a href="https://www.youtube.com/watch?v=aLrXQd6vt08">PITCH - YouTube</a>
+<br>
+<a href="https://www.youtube.com/watch?v=wbwTphp23JE">DEMO - YouTube</a>
+</div>
      <div
  class="canva-embed column is-half"
  data-design-id="DAD1s3_fJ0I"
